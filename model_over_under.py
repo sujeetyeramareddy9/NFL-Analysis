@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
+import sklearn
 
 def get_model_for_over_under(training_schedule, test_schedule, teams, week):
     X_train = []
