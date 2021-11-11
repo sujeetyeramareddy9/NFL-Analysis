@@ -21,7 +21,7 @@ def main():
             model = get_model_for_win_loss(train_schedule, test_schedule, teams, 10)
             predict_win_loss(test_schedule, teams, 10, model)
         elif predict == 'O-U':
-            years = [2019, 2020]
+            years = [2020]
             teams = get_team_stat_df()
             train_schedule, test_schedule = get_schedule(years)
             inferential_model, relationship_model = get_model_for_over_under(train_schedule, test_schedule, teams, 10)
