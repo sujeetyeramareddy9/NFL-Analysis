@@ -1,5 +1,4 @@
 from get_data import *
-from model_spread import *
 from model_pytorch import *
 import os
 
