@@ -9,7 +9,10 @@ def main():
     if pytorch:
         practice()
     else:
-        get_individual_data_files("data/")
+        input_dir = "data/"
+        df = get_individual_data_files(input_dir, get_final=True)
+        df = preprocess_dataframe(df)
+        df.to_csv(input_dir+"final_data.csv", index=False)
 
 if __name__ == '__main__':
     main()
