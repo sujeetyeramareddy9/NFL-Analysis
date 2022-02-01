@@ -65,8 +65,6 @@ def get_individual_data_files(input_dir, get_final):
         second_third = opp_pass_comp.merge(opp_rush_yds, how="left", on=game_columns).merge(punts_temperature, how="left", on=game_columns)
         third_third = tm_rush_yds.merge(tm_pass_comp, how="left", on=game_columns).merge(tm_tot_yds, how="left", on=game_columns)
         final_data = first_third.merge(second_third, how="left", on=game_columns).merge(third_third, how="left", on=game_columns)
-
-        final_data.to_csv(input_dir+"final_data.csv", index=False)
     else:
         final_data = pd.read_csv(input_dir + "final_data.csv")
 
@@ -92,8 +90,16 @@ def preprocess_dataframe(df):
     )
 
     df["Tm_3D%"] = df["Tm_3D%"].apply(fix_percent_col)
-    df["Tm_4D%"] = df["Tm_4D%"].apply(fix_percent_col)
     df["Opp_PassCmp%"] = df["Opp_PassCmp%"].apply(fix_percent_col)
+
+    columns_to_drop = [
+        "Year", "Result", "Tm_3DAtt", "Tm_3DConv", "Tm_4DAtt", "Tm_4DConv", 
+        "Tm_4D%", "Tm_Pen", "Tm_Yds", "Opp_Pen", "Opp_Yds", "Opp_PassCmp", "Opp_PassAtt", "Opp_RshAtt", "Opp_RshYds",
+        "Tm_Y/P_x", "Tm_Roof", "Tm_Surface", "Tm_RshAtt", "Tm_RshYds", "Tm_PassAtt", "Tm_cmp", "Tm_TotYds", "Tm_Plys", 
+        "Tm_Y/P_y", "Tm_DPlys", "Tm_DY/P", "Tm_TO", "Tm_Gametime", "Tm_Pnt", "Tm_PntYds"
+    ]
+
+    df = df.drop(columns = columns_to_drop)
+    df = df.assign(Tm_TOP = df["Tm_TOP"].str[:2].astype(float))
     
-    print(df.info())
     return df
