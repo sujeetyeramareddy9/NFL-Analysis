@@ -69,37 +69,4 @@ def get_individual_data_files(input_dir, get_final):
         final_data = pd.read_csv(input_dir + "final_data.csv")
 
     return final_data
-
-
-def fix_home_col(home_col_to_fix):
-    return home_col_to_fix.fillna(1).replace({"@": 0})
-
-def fix_score_col(score):
-    tm_opp_result = np.array(score.split()[1].split("-")).astype(int)
-    return tm_opp_result[0] - tm_opp_result[1]
-
-def fix_percent_col(percent):
-    if type(percent) == str:
-        return float(percent.replace("%", ""))
-    return percent
-
-def preprocess_dataframe(df):
-    df = df.assign(
-        Home = fix_home_col(df.Home),
-        Spread = df.Result.apply(fix_score_col)
-    )
-
-    df["Tm_3D%"] = df["Tm_3D%"].apply(fix_percent_col)
-    df["Opp_PassCmp%"] = df["Opp_PassCmp%"].apply(fix_percent_col)
-
-    columns_to_drop = [
-        "Year", "Result", "Tm_3DAtt", "Tm_3DConv", "Tm_4DAtt", "Tm_4DConv", 
-        "Tm_4D%", "Tm_Pen", "Tm_Yds", "Opp_Pen", "Opp_Yds", "Opp_PassCmp", "Opp_PassAtt", "Opp_RshAtt", "Opp_RshYds",
-        "Tm_Y/P_x", "Tm_Roof", "Tm_Surface", "Tm_RshAtt", "Tm_RshYds", "Tm_PassAtt", "Tm_cmp", "Tm_TotYds", "Tm_Plys", 
-        "Tm_Y/P_y", "Tm_DPlys", "Tm_DY/P", "Tm_TO", "Tm_Gametime", "Tm_Pnt", "Tm_PntYds"
-    ]
-
-    df = df.drop(columns = columns_to_drop)
-    df = df.assign(Tm_TOP = df["Tm_TOP"].str[:2].astype(float))
     
-    return df
