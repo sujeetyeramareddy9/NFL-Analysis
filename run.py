@@ -11,7 +11,7 @@ try:
 except Exception as e:
     test_file = None
 
-def main():
+def main(targets):
     if "test" in targets:
         # test data
         test = pd.read_csv("./test/test.csv")
