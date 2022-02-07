@@ -1,6 +1,10 @@
 import os
 import sys
-import src
+sys.path.insert(0, './src')
+from get_data import *
+from preprocess_data import *
+from baseline_model import *
+from model_pytorch import *
 
 # adding try, except block so that we can use the test file as neccessary
 try:
