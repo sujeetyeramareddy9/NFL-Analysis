@@ -5,6 +5,7 @@ from preprocess_data import *
 from baseline_model import *
 from model_pytorch import *
 
+# adding try, except block so that we can use the test file as neccessary
 try:
     test_file = sys.argv[1]
 except Exception as e:
@@ -18,17 +19,32 @@ def main():
     # bool variable to determine if we want to retrieve the final preprocessed dataframe
     get_final=True
     if not get_final:
-        # 
+        # in this case, we want to run through the ETL for the data
+
+        # extract
         df = get_individual_data_files(input_dir, get_final=get_final)
+
+        # transform
         df = preprocess_dataframe(df)
+
+        # load
         df.to_csv(input_dir+"final_data.csv", index=False)
     else:
+        # in this case, we read directly from exported final data
+
+        # train data
         train = pd.read_csv("final_data/train.csv")
+
+        # test data based on command line input
         if test_file is not None:
             test = pd.read_csv("final_data/test.csv")
         else:
             test = pd.read_csv("final_data/test.csv")
+
+        # build our model
         mdl = build_model(train, test)
+
+        # code here is similar for our neural network once "model_pytorch" is developed
 
 
 if __name__ == '__main__':
