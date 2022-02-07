@@ -1,9 +1,9 @@
 import os
 import sys
-from get_data import *
-from preprocess_data import *
-from baseline_model import *
-from model_pytorch import *
+from src.get_data import *
+from src.preprocess_data import *
+from src.baseline_model import *
+from src.model_pytorch import *
 
 # adding try, except block so that we can use the test file as neccessary
 try:
