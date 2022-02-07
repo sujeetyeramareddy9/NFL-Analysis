@@ -5,6 +5,7 @@ from sklearn.preprocessing import StandardScaler
 
 import matplotlib.pyplot as plt
 
+# list of features to use in baseline model
 features = ["Home", "Tm_QBRating", "Opp_QBRating", "Tm_RshY/A", "Opp_RshY/A"]
 
 def split_data(df):
