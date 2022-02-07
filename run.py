@@ -49,5 +49,5 @@ def main():
 
 if __name__ == '__main__':
 
-    targets =  sys.arg[1:]
+    targets =  sys.argv[1:]
     main(targets)
