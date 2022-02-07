@@ -15,7 +15,7 @@ except Exception as e:
 def main(targets):
     if "test" in targets:
         # test data
-        test = pd.read_csv("./test/test.csv")
+        test = pd.read_csv("./src/test/test.csv")
     else:
         # train data
         train = pd.read_csv("./data/final_data/train.csv")
