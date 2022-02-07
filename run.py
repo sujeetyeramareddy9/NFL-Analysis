@@ -41,7 +41,7 @@ def main(targets):
     else:
         # in this case, we read directly from exported final data
         test = pd.read_csv("./src/test/test.csv")
-        train = pd.read_csv("./data/final_data/train.csv")
+        train = pd.read_csv("./src/data/final_data/train.csv")
         # build our model
         mdl = build_model(train, test)
 
