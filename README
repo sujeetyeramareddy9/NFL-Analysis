@@ -1,1 +1,16 @@
-python SB_main.py
+NFL analysis made by Sujeet Yeramareddy, Jonathan Langlry , Yong Liu
+
+
+For our 180B project, my group decided to use our domain methodology of postpi (post prediction inference) 
+and apply it to sports analysis based on NFL games.  We are designing a model that can predict the outcome
+ of a football game, such as which team will win and what the margin of their victory will be, and then 
+ correcting the statistical inference for selected key features.
+
+
+Data collected from : stathead.com.football
+
+
+
+
+
+
