@@ -8,10 +8,14 @@ dtypes = {"Date": str}
 parse_dates = list(dtypes.keys())
 
 def preprocess_game_columns(df):
+
     df["Date"] = df["Date"] + " " +  df["Time"]
+    #combines the date and time column into one
     df.drop(columns=["Time", "LTime"], inplace=True)
+    #drop now obsolete columns
     df["Date"] = pd.to_datetime(df["Date"])
-#hello 
+    #converts the date column to date time
+
     return df
 
 
@@ -19,22 +23,29 @@ def get_individual_data_files(input_dir, get_final):
     if not get_final:
         # first third of our data files
         opp_first_downs = pd.read_csv(input_dir+"opp_first_downs.csv").drop(columns=["Rk", "OT"]).rename(columns={"Unnamed: 6": "Home"})
+        #reads in first 3 csv files, drops the unecessary columns from them, and renames the column from "Unnamed:6" to "Home", which represents
+        #whether or not the game was played at home
         tm_first_downs = pd.read_csv(input_dir+"tm_first_downs.csv").drop(columns=["Rk", "OT"]).rename(columns={"Unnamed: 6": "Home"})
         penalties = pd.read_csv(input_dir+"penalties.csv").drop(columns=["Rk", "OT"]).rename(columns={"Unnamed: 6": "Home"})
 
         # second third of our data files
         tm_pass_comp = pd.read_csv(input_dir+"tm_passing_comp.csv").drop(columns=["Rk", "OT"]).rename(columns={"Unnamed: 6": "Home"})
+        #same as above
         tm_rush_yds = pd.read_csv(input_dir+"tm_rushing_yards.csv").drop(columns=["Rk", "OT"]).rename(columns={"Unnamed: 6": "Home"})
         tm_tot_yds = pd.read_csv(input_dir+"tm_total_yards.csv").drop(columns=["Rk", "OT"]).rename(columns={"Unnamed: 6": "Home"})
 
         # final third of our data files
         opp_pass_comp = pd.read_csv(input_dir+"opp_pass_comp.csv").drop(columns=["Rk", "OT"]).rename(columns={"Unnamed: 6": "Home"})
+        #same as above
         opp_rush_yds = pd.read_csv(input_dir+"opp_rush_yds.csv").drop(columns=["Rk", "OT"]).rename(columns={"Unnamed: 6": "Home"})
         opp_tot_yds = pd.read_csv(input_dir+"opp_total_yds.csv").drop(columns=["Rk", "OT"]).rename(columns={"Unnamed: 6": "Home"})
         punts_temperature = pd.read_csv(input_dir+"punts_temperature.csv").drop(columns=["Rk", "OT"]).rename(columns={"Unnamed: 6": "Home"})
 
         tm_first_downs = preprocess_game_columns(tm_first_downs)
         opp_first_downs = preprocess_game_columns(opp_first_downs)
+        #this section of code calls the preprocess_game_columns from above on the 10 dataframes.
+        #for each of these dataframes their date and time columns are merged into one and converted into date time
+        #with the two time columns being dropped as they are now obsolete
 
         tm_pass_comp = preprocess_game_columns(tm_pass_comp)
         opp_pass_comp = preprocess_game_columns(opp_pass_comp)
