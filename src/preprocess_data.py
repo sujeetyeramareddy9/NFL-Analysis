@@ -62,5 +62,13 @@ def remove_outliers(df):
     return tmp[~tmp["outlier"]].drop(columns=["outlier"])
 
 
+def export_data(train, test):
+    output_dir = "final_data/"
+    train.to_csv(output_dir + "train.csv", index=False)
+    test.to_csv(output_dir + "test.csv", index=False)
+
+
 def split_train_test(df):
     df["training"] = (df["Date"].dt.year <= 2020).astype(float)
+    export_data(df[df.training==1], df[df.training==0])
+
