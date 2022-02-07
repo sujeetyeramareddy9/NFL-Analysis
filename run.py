@@ -40,8 +40,8 @@ def main(targets):
         df.to_csv(input_dir+"final_data.csv", index=False)
     else:
         # in this case, we read directly from exported final data
-
-
+        test = pd.read_csv("./src/test/test.csv")
+        train = pd.read_csv("./data/final_data/train.csv")
         # build our model
         mdl = build_model(train, test)
 
