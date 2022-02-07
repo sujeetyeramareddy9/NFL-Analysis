@@ -12,6 +12,14 @@ except Exception as e:
     test_file = None
 
 def main():
+    if "test" in targets:
+        # test data
+        test = pd.read_csv("./test/test.csv")
+    else:
+        # train data
+        train = pd.read_csv("./data/final_data/train.csv")
+
+
     # ensure that the working directory is the location of run.py script
     os.chdir(os.path.dirname(os.path.abspath("run.py")))
     # input directory for location of data relative to run.py
@@ -32,14 +40,6 @@ def main():
     else:
         # in this case, we read directly from exported final data
 
-        # train data
-        train = pd.read_csv("final_data/train.csv")
-
-        # test data based on command line input
-        if test_file is not None:
-            test = pd.read_csv("final_data/test.csv")
-        else:
-            test = pd.read_csv("final_data/test.csv")
 
         # build our model
         mdl = build_model(train, test)
@@ -48,4 +48,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+
+    targets =  sys.arg[1:]
+    main(targets)
