@@ -42,10 +42,14 @@ def main(targets):
         # in this case, we read directly from exported final data
         test = pd.read_csv("./src/test/test.csv")
         train = pd.read_csv("./src/final_data/train.csv")
-        # build our model
-        mdl = build_model(train, test)
 
-        # code here is similar for our neural network once "model_pytorch" is developed
+        nn = True
+        if nn:
+            X_train, X_test, y_train, y_test = get_data_ready_for_nn(train, test)
+            mdl = train_nn(X_train, X_test, y_train, y_test)
+        else:
+            mdl = build_model(train, test)
+        
 
 
 if __name__ == '__main__':
