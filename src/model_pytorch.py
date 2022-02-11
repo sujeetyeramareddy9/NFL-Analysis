@@ -26,6 +26,11 @@ def get_data_ready_for_nn(train ,test):
         X_train[scaling_col] = (X_train[scaling_col] - mu) / sigma
         X_test[scaling_col] = (X_test[scaling_col] - mu) / sigma
 
+    # mu = y_train.mean()
+    # sigma = y_train.std()
+    # y_train = (y_train - mu) / sigma
+    # y_test = (y_test - mu) / sigma
+
     return torch.FloatTensor(X_train.to_numpy()), torch.FloatTensor(X_test.to_numpy()), torch.FloatTensor(np.array(y_train)), torch.FloatTensor(np.array(y_test))
 
 
@@ -46,16 +51,17 @@ class Net(torch.nn.Module):
         output = self.sigmoid(output)
         return output
 
+
 def train_nn(x_train, x_test, y_train, y_test):
     input_size = x_train.size()[1]
     hidden_size = 30
     model = Net(input_size, hidden_size)
     criterion = torch.nn.MSELoss()
     # without momentum parameter
-    optimizer = torch.optim.SGD(model.parameters(), lr = 0.9)
+    optimizer = torch.optim.SGD(model.parameters(), lr = 1e-3)
 
     model.train()
-    epochs = 100
+    epochs = 500
     errors = []
 
     for epoch in range(epochs):
