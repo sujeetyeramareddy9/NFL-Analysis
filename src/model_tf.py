@@ -1,5 +1,4 @@
-import torch
-import torch.nn.functional as F
+import tensorflow as tf
 import numpy as np
 
 from sklearn.preprocessing import StandardScaler
@@ -32,45 +31,23 @@ def get_data_ready_for_nn(train ,test):
     # y_train = (y_train - mu) / sigma
     # y_test = (y_test - mu) / sigma
 
-    return torch.FloatTensor(X_train.to_numpy()), torch.FloatTensor(X_test.to_numpy()), torch.FloatTensor(np.array(y_train)), torch.FloatTensor(np.array(y_test))
-
-
-class Net(torch.nn.Module):
-    def __init__(self , input_size, hidden_size):
-        super(Net, self).__init__()
-        self.input_size = input_size
-        self.hidden_size = hidden_size
-        self.fc1 = torch.nn.Linear(self.input_size, self.hidden_size)
-        self.fc2 = torch.nn.Linear(self.hidden_size, 15)
-        self.fc3 = torch.nn.Linear(15, 1)
-
-    def forward(self, x):
-        x = F.relu(self.fc3(F.relu(self.fc2(F.relu(self.fc1(x))))))
-        return x
+    return tf.convert_to_tensor(X_train.to_numpy()), tf.convert_to_tensor(X_test.to_numpy()), tf.convert_to_tensor(np.array(y_train)), tf.convert_to_tensor(np.array(y_test))
 
 
 def train_nn(x_train, x_test, y_train, y_test):
-    input_size = x_train.size()[1]
-    hidden_size = 50
-    model = Net(input_size, hidden_size)
-    criterion = torch.nn.MSELoss()
-    # without momentum parameter
-    optimizer = torch.optim.SGD(model.parameters(), lr = 1e-3)
+    model = tf.keras.models.Sequential()
+    model.add(tf.keras.layers.Input(shape=(x_train.shape[1])))
+    model.add(tf.keras.layers.Dense(50, activation="relu"))
+    model.add(tf.keras.layers.Dense(25, activation="relu"))
+    model.add(tf.keras.layers.Dense(10, activation="relu"))
+    model.add(tf.keras.layers.Dense(1, activation="relu"))
+    model.compile(optimizer="adam", loss="MSE", metrics=["mae"])
 
-    model.train()
-    epochs = 500
-    errors = []
+    model.fit(x_train, y_train, batch_size=64, epochs=30)
 
-    for epoch in range(epochs):
-        optimizer.zero_grad()
-        y_pred = model(x_train)
-        loss = criterion(y_pred.squeeze(), y_train)
-        errors.append(loss.item())
-        print(f"Epoch {epoch}: Train Loss: {loss}")
-        loss.backward()
-        optimizer.step()
+    model.evaluate(x_test, y_test)
+    
+    
+            
 
-    model.eval()
-    y_pred = model(x_test)
-    after_train = criterion(y_pred.squeeze(), y_test)
-    print('Test loss after Training' , after_train.item())
+    
