@@ -1,5 +1,11 @@
-import tensorflow as tf
 import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from sklearn.neural_network import MLPRegressor
+from sklearn.model_selection import GridSearchCV
+from sklearn.inspection import permutation_importance
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
@@ -28,25 +34,48 @@ def get_data_ready_for_nn(train ,test):
 
     # mu = y_train.mean()
     # sigma = y_train.std()
+    # print("Std. Dev. of Spread: ", sigma)
     # y_train = (y_train - mu) / sigma
     # y_test = (y_test - mu) / sigma
 
-    return tf.convert_to_tensor(X_train.to_numpy()), tf.convert_to_tensor(X_test.to_numpy()), tf.convert_to_tensor(np.array(y_train)), tf.convert_to_tensor(np.array(y_test))
+    return X_train.to_numpy(), X_test.to_numpy(), np.array(y_train), np.array(y_test), X_train.columns
 
 
-def train_nn(x_train, x_test, y_train, y_test):
-    model = tf.keras.models.Sequential()
-    model.add(tf.keras.layers.Input(shape=(x_train.shape[1])))
-    model.add(tf.keras.layers.Dense(50, activation="relu"))
-    model.add(tf.keras.layers.Dense(25, activation="relu"))
-    model.add(tf.keras.layers.Dense(10, activation="relu"))
-    model.add(tf.keras.layers.Dense(1, activation="relu"))
-    model.compile(optimizer="adam", loss="MSE", metrics=["mae"])
+def importance(clf, X, y, cn):
+    imp = permutation_importance(
+        clf, X, y, scoring="neg_mean_squared_error", n_repeats=10, random_state=1234
+    )
 
-    model.fit(x_train, y_train, batch_size=64, epochs=30)
+    data = pd.DataFrame(imp.importances.T)
+    data.columns = cn
+    order = data.agg("mean").sort_values(ascending=False).index
+    fig = sns.barplot(
+        x="value", y="variable", color="slateblue", data=pd.melt(data[order])
+    )
+    fig.set(title="Permutation Importances", xlabel=None, ylabel=None)
+    return fig
 
-    model.evaluate(x_test, y_test)
+
+def train_nn(X_train, X_test, y_train, y_test, cn):
+    model = MLPRegressor(activation="relu", solver="sgd", early_stopping=True, learning_rate="adaptive", max_iter=750)
+    model.fit(X_train, np.array(y_train))
+
+    print("Training Set MSE: ", model.loss_)
     
+    param_grid = {"hidden_layer_sizes": [(5,10), (7, 5)], "alpha": [1e-3, 1e-4]}
+
+    clf = GridSearchCV(model, param_grid, scoring="neg_mean_squared_error", cv=5)
+    clf.fit(X_train, np.array(y_train))
+    print(clf.best_params_)
+    
+    print("Test Set MAE: ", np.mean(np.abs((clf.predict(X_test)) - np.array(y_test))))
+
+    fig = importance(
+        clf, X_train, np.array(y_train), cn
+    )
+    plt.savefig("Permutation_Importances.png")
+
+    return model
     
             
 
