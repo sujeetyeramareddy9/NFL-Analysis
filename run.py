@@ -24,7 +24,7 @@ def main(targets):
     # ensure that the working directory is the location of run.py script
     os.chdir(os.path.dirname(os.path.abspath("run.py")))
     # input directory for location of data relative to run.py
-    input_dir = "data/"
+    input_dir = "src/data/"
     # bool variable to determine if we want to retrieve the final preprocessed dataframe
     get_final=True
     if not get_final:
@@ -38,17 +38,16 @@ def main(targets):
 
         # load
         df.to_csv(input_dir+"final_data.csv", index=False)
-    else:
-        # in this case, we read directly from exported final data
-        test = pd.read_csv("./src/test/test.csv")
-        train = pd.read_csv("./src/final_data/train.csv")
+    
+    test = pd.read_csv("./src/test/test.csv")
+    train = pd.read_csv("./src/final_data/train.csv")
 
-        nn = True
-        if nn:
-            X_train, X_test, y_train, y_test = get_data_ready_for_nn(train, test)
-            mdl = train_nn(X_train, X_test, y_train, y_test)
-        else:
-            mdl = build_model(train, test)
+    nn = True
+    if nn:
+        X_train, X_test, y_train, y_test, cn = get_data_ready_for_nn(train, test)
+        mdl = train_nn(X_train, X_test, y_train, y_test, cn)
+    else:
+        mdl = build_model(train, test)
         
 
 

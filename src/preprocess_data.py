@@ -203,7 +203,7 @@ def export_data(train, test):
     exports train/test.csv to allow for use in other py files
         
     """ 
-    output_dir = "final_data/"
+    output_dir = "src/final_data/"
     train.to_csv(output_dir + "train.csv", index=False)
     test.to_csv(output_dir + "test.csv", index=False)
 
@@ -225,7 +225,7 @@ def split_train_test(df):
     exports two dataframes based on whether or not the training label ==1 or ==0 (test data)
         
     """ 
-    df["training"] = (df["Date"].dt.year <= 2020).astype(float)
+    df["training"] = (df["Date"].dt.year <= 2019).astype(float)
     #any game before 2021 becomes train data
     export_data(df[df.training==1], df[df.training==0])
 
