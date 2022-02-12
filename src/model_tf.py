@@ -73,7 +73,7 @@ def train_nn(X_train, X_test, y_train, y_test, cn):
     fig = importance(
         clf, X_train, np.array(y_train), cn
     )
-    plt.savefig("Permutation_Importances.png")
+    plt.savefig("./src/plots/Permutation_Importances.png")
 
     return model
     
