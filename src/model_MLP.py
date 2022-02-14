@@ -75,7 +75,7 @@ def train_nn(X_train, X_test, y_train, y_test, cn):
     )
     plt.savefig("./src/plots/Permutation_Importances.png")
 
-    return model
+    return clf
     
             
 

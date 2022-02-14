@@ -4,7 +4,8 @@ sys.path.insert(0, './src')
 from get_data import *
 from preprocess_data import *
 from baseline_model import *
-from model_tf import *
+from model_MLP import *
+from postpi import *
 
 # adding try, except block so that we can use the test file as neccessary
 try:
@@ -48,6 +49,15 @@ def main(targets):
         mdl = train_nn(X_train, X_test, y_train, y_test, cn)
     else:
         mdl = build_model(train, test)
+
+    y_pred = mdl.predict(X_test)
+    print(y_test.mean())
+    superbowl_pred = np.array(pd.read_csv("./src/final_data/superbowl.csv").columns).astype(float)
+    superbowl_pred = mdl.predict([superbowl_pred])
+    print(superbowl_pred)
+
+    figure3_plots(y_pred, y_test)
+
         
 
 
