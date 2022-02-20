@@ -8,6 +8,7 @@ from sklearn.linear_model import LinearRegression
 
 def figure2_plot(qb_rating, y_test, y_pred):
     fig, axes = plt.subplots(1, 2)
+    fig.suptitle("Figure 2 Plots")
     fig.set_size_inches(15, 5)
 
     m, b = np.polyfit(qb_rating, y_test, 1)
@@ -24,15 +25,22 @@ def figure2_plot(qb_rating, y_test, y_pred):
     plt.clf()
 
 
-def figure3_plot(y_pred, y_test):
-    fig, axes = plt.subplots(1, 1)
-    fig.set_size_inches(6, 6)
+def figure3_plot(y_pred, y_pred_baseline, y_test, y_test_baseline):
+    fig, axes = plt.subplots(1, 2)
+    fig.suptitle("Figure 3 Plots")
+    fig.set_size_inches(15, 5)
     
     m, b = np.polyfit(y_test, y_pred, 1)
-    axes.scatter(x=y_test, y=y_pred, c="purple", alpha=0.35)
-    axes.plot(y_test, m*y_test + b, c="red")
-    axes.set(xlabel="y-observed", ylabel="y-predicted")
-    axes.set_title("MLPRegressor")
+    axes[0].scatter(x=y_test, y=y_pred, c="purple", alpha=0.35)
+    axes[0].plot(y_test, m*y_test + b, c="red")
+    axes[0].set(xlabel="y-observed nn", ylabel="nn y-predicted")
+    axes[0].set_title("MLPRegressor")
+
+    m, b = np.polyfit(y_test_baseline, y_pred_baseline, 1)
+    axes[1].scatter(x=y_test_baseline, y=y_pred_baseline, c="purple", alpha=0.35)
+    axes[1].plot(y_test_baseline, m*y_test_baseline + b, c="red")
+    axes[1].set(xlabel="y-observed baseline", ylabel="baseline y-predicted")
+    axes[1].set_title("Linear Regression")
 
     plt.savefig("src/plots/postpi_Fig3.png")
     plt.clf()
@@ -41,27 +49,28 @@ def figure3_plot(y_pred, y_test):
 def figure4_plot(all_true_outcomes, all_true_se, all_true_t_stats, all_nocorrection_estimates, all_parametric_estimates, all_nonparametric_estimates, all_nocorrection_se, all_parametric_se, all_nonparametric_se, all_nocorrection_t_stats, all_parametric_t_stats, all_nonparametric_t_stats):
     fig4, axes4 = plt.subplots(1, 3)
     fig4.tight_layout()
+    fig4.suptitle("Figure 4 Plots")
     fig4.set_size_inches(20,10)
 
     axes4[0].scatter(all_true_outcomes, all_nocorrection_estimates, color='orange', alpha=0.35)
     axes4[0].scatter(all_true_outcomes, all_parametric_estimates, color='blue', alpha=0.6)
     axes4[0].scatter(all_true_outcomes, all_nonparametric_estimates, color='skyblue', alpha=0.25)
     axes4[0].plot([0,15], [0,15], color="black")
-    axes4[0].set_title("Figure 4A")
+    axes4[0].set_title("Beta Estimates")
     axes4[0].set(xlabel="estimate with true outcome", ylabel="estimate with predicted outcome")
 
     axes4[1].scatter(all_true_se, all_nocorrection_se, color='orange', alpha=0.35)
     axes4[1].scatter(all_true_se, all_parametric_se, color='blue', alpha=0.6)
     axes4[1].scatter(all_true_se, all_nonparametric_se, color='skyblue', alpha=0.25)
     axes4[1].plot([0,0.8], [0,0.8], color="black")
-    axes4[1].set_title("Figure 4B")
+    axes4[1].set_title("Standard Error")
     axes4[1].set(xlabel="standard error with true outcome", ylabel="standard error with predicted outcome")
 
     axes4[2].scatter(all_true_t_stats, all_nocorrection_t_stats, color='orange', alpha=0.35)
     axes4[2].scatter(all_true_t_stats, all_parametric_t_stats, color='blue', alpha=0.6)
     axes4[2].scatter(all_true_t_stats, all_nonparametric_t_stats, color='skyblue', alpha=0.25)
     axes4[2].plot([-50,50], [-50,50], color="black")
-    axes4[2].set_title("Figure 4C")
+    axes4[2].set_title("T-statistic")
     axes4[2].set(xlabel="statistic with true outcome", ylabel="statistic with predicted outcome")
 
     fig4.tight_layout(pad=2.5)
@@ -116,24 +125,24 @@ def split_data(X_test, y_test):
     return test, valid
 
 
-def postprediction_inference(X_test, y_test, prediction_model):
+def postprediction_inference(X_test, y_test, prediction_model, y_test_baseline, y_pred_baseline):
     all_true_outcomes, all_true_se, all_true_t_stats = [], [], []
     all_parametric_estimates, all_parametric_se, all_parametric_t_stats = [], [], []
     all_nonparametric_estimates, all_nonparametric_se, all_nonparametric_t_stats = [], [], []
     all_nocorrection_estimates, all_nocorrection_se, all_nocorrection_t_stats = [], [], []
 
-    for i in range(250):
+    for i in range(1000):
         if i%100 == 0:
             print("Working on Iteration: ", i)
 
         test_set, valid_set = split_data(X_test, y_test)
-        y_test_pred = prediction_model.predict(test_set.iloc[:,:-1].values)
+        y_pred_nn = prediction_model.predict(test_set.iloc[:,:-1].values)
 
         if i == 0:
-            figure2_plot(test_set.iloc[:,1], test_set.iloc[:,-1], y_test_pred)
-            figure3_plot(y_test_pred, test_set.iloc[:,-1].values)
+            figure2_plot(test_set.iloc[:,1], test_set.iloc[:,-1], y_pred_nn)
+            figure3_plot(y_pred_nn, y_pred_baseline, test_set.iloc[:,-1].values, y_test_baseline)
 
-        relationship_model = LinearRegression(fit_intercept=False).fit(sm.add_constant(y_test_pred.reshape(-1,1)), test_set.iloc[:,-1].values)
+        relationship_model = LinearRegression(fit_intercept=False).fit(sm.add_constant(y_pred_nn.reshape(-1,1)), test_set.iloc[:,-1].values)
 
         y_valid_pred = prediction_model.predict(valid_set.iloc[:,:-1].values)
         y_valid_corr = relationship_model.predict(sm.add_constant(y_valid_pred.reshape(-1,1)))
