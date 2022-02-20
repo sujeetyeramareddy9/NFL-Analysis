@@ -43,26 +43,25 @@ def main(targets):
     test = pd.read_csv("./src/test/test.csv")
     train = pd.read_csv("./src/final_data/train.csv")
 
+    # Modeling
     nn = True
     if nn:
         X_train, X_test, y_train, y_test, cn = get_data_ready_for_nn(train, test)
-        mdl = train_nn(X_train, X_test, y_train, y_test, cn)
+        prediction_mdl = train_nn(X_train, X_test, y_train, y_test, cn)
     else:
-        mdl = build_model(train, test)
+        prediction_mdl = build_model(train, test)
 
-    y_pred = mdl.predict(X_test)
+    y_pred = prediction_mdl.predict(X_test)
 
+    # superbowl_pred = pd.read_csv("./src/final_data/superbowls.csv").to_numpy()
+    # superbowl_pred = prediction_mdl.predict(superbowl_pred)
+    # print(superbowl_pred)
 
-    superbowl_pred = pd.read_csv("./src/final_data/superbowls.csv").to_numpy()
-    superbowl_pred = mdl.predict(superbowl_pred)
-    print(superbowl_pred)
-    figure3_plots(y_pred, y_test)
-    return superbowl_pred
-        
+    # Post-prediction inference
+    postprediction_inference(X_test, y_test, prediction_mdl)
 
 
 if __name__ == '__main__':
-
     targets =  sys.argv[1:]
     main(targets)
  
