@@ -51,13 +51,13 @@ def main(targets):
         mdl = build_model(train, test)
 
     y_pred = mdl.predict(X_test)
-    print(y_test.mean())
-    superbowl_pred = np.array(pd.read_csv("./src/final_data/superbowl.csv").columns).astype(float)
-    superbowl_pred = mdl.predict([superbowl_pred])
+
+
+    superbowl_pred = pd.read_csv("./src/final_data/superbowls.csv").to_numpy()
+    superbowl_pred = mdl.predict(superbowl_pred)
     print(superbowl_pred)
-
     figure3_plots(y_pred, y_test)
-
+    return superbowl_pred
         
 
 
@@ -65,3 +65,4 @@ if __name__ == '__main__':
 
     targets =  sys.argv[1:]
     main(targets)
+ 
