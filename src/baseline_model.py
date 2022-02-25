@@ -106,8 +106,13 @@ def build_model(train, test):
     # print("MAE: ", mae(mod_fit.predict(X_test), list(y_test)))
 
     # qqplot to analyze if our model as a whole follows linear regression assumptions
+<<<<<<< HEAD
+    sm.qqplot(res).set_size_inches(4,4)
+    plt.savefig("./src/plots/qqplot.png")
+=======
     # sm.qqplot(res).set_size_inches(4,4)
     # plt.show()
+>>>>>>> master
     # shows that the model is approximately normal and significant
 
     # return model to allow for predictions

@@ -55,7 +55,7 @@ def train_nn(x_train, x_test, y_train, y_test):
     model = Net(input_size, hidden_size)
     criterion = torch.nn.MSELoss()
     # without momentum parameter
-    optimizer = torch.optim.SGD(model.parameters(), lr = 1e-3)
+    optimizer = torch.optim.SGD(model.parameters(), lr = 1e-3) # adam # lr # lr_shceduler # sigmoid
 
     model.train()
     epochs = 500
