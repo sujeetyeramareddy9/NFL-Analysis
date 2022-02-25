@@ -23,6 +23,7 @@ def get_data_ready_for_nn(train ,test):
        'Opp_SkYds', 'Opp_QBRating', 'Opp_RshY/A', 'Opp_RshTD', 'Tm_Temperature', 'Tm_RshY/A', 'Tm_RshTD', 'Tm_PassCmp%', 'Tm_PassYds', 'Tm_PassTD', 'Tm_INT', 'Tm_Sk', 'Tm_SkYds', 'Tm_QBRating', 'Tm_TOP']
     X_train = train.copy()[training_cols]
     X_test = test.copy()[training_cols]
+    X_validation = X_train
 
     y_train = train.copy()["Spread"]
     y_test = test.copy()["Spread"]
@@ -80,8 +81,8 @@ def importance(clf, X, y, cn):
 
 
 def train_nn(X_train, X_test, y_train, y_test, cn):
-    model = MLPRegressor(activation="relu", solver="adam", early_stopping=False, 
-    learning_rate="adaptive", max_iter=300,alpha=0.001,hidden_layer_sizes = (16,16))
+    model = MLPRegressor(activation="logistic", solver="adam", early_stopping=False, 
+    learning_rate="adaptive", max_iter=300,alpha=0.01,hidden_layer_sizes = (32,64,64,128))
     inverse = False
     if inverse :        
         inverse_y = 1/y_train
