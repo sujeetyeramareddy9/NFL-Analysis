@@ -74,12 +74,6 @@ def importance(clf, X, y, cn):
     return fig
 
 
-
-
-
-
-
-
 def train_nn(X_train, X_test, y_train, y_test, cn):
     model = MLPRegressor(activation="logistic", solver="adam", early_stopping=False, 
     learning_rate="adaptive", max_iter=300,alpha=0.01,hidden_layer_sizes = (32,64,64,128))
