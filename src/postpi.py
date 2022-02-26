@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 import random
 import pandas as pd
-from sklearn.linear_model import LinearRegression
 
+from sklearn.linear_model import LinearRegression
+import scipy.stats
 
 def figure2_plot(qb_rating, y_test, y_pred):
     fig, axes = plt.subplots(1, 2)
@@ -42,7 +43,7 @@ def figure3_plot(y_pred, y_pred_baseline, y_test, y_test_baseline):
     axes[1].set(xlabel="y-observed baseline", ylabel="baseline y-predicted")
     axes[1].set_title("Linear Regression")
 
-    plt.savefig("src/plots/postpi_Fig3.png")
+    plt.savefig("./src/plots/postpi_Fig3.png")
     plt.clf()
 
 
@@ -88,6 +89,7 @@ def bootstrap_(x_val, y_val_pred, y_val_actual, relationship_model, param=True, 
 
     beta_estimators = []
     se_beta_estimators = []
+    pval_beta_estimators = []
     
     for b in range(B):
         # sample from the validation set with replacement
@@ -104,6 +106,7 @@ def bootstrap_(x_val, y_val_pred, y_val_actual, relationship_model, param=True, 
 
         beta_estimators.append(inf_model.params[1])
         se_beta_estimators.append(inf_model.bse[1])
+        pval_beta_estimators.append(inf_model.pvalues[1])
         
     beta_hat_boot = np.median(beta_estimators)
     se_hat_boot = None
@@ -112,7 +115,7 @@ def bootstrap_(x_val, y_val_pred, y_val_actual, relationship_model, param=True, 
     else:
         se_hat_boot = np.std(beta_estimators)
     
-    return beta_hat_boot, se_hat_boot
+    return beta_hat_boot, se_hat_boot, np.mean(pval_beta_estimators)
 
 
 def split_data(X_test, y_test):
@@ -127,17 +130,16 @@ def split_data(X_test, y_test):
 
 
 def postprediction_inference(X_test, y_test, prediction_model, y_test_baseline, y_pred_baseline):
-    all_true_outcomes, all_true_se, all_true_t_stats = [], [], []
-    all_parametric_estimates, all_parametric_se, all_parametric_t_stats = [], [], []
-    all_nonparametric_estimates, all_nonparametric_se, all_nonparametric_t_stats = [], [], []
-    all_nocorrection_estimates, all_nocorrection_se, all_nocorrection_t_stats = [], [], []
+    all_true_outcomes, all_true_se, all_true_t_stats, all_true_p_values = [], [], [], []
+    all_parametric_estimates, all_parametric_se, all_parametric_t_stats, all_parametric_p_values = [], [], [], []
+    all_nonparametric_estimates, all_nonparametric_se, all_nonparametric_t_stats, all_nonparametric_p_values = [], [], [], []
+    all_nocorrection_estimates, all_nocorrection_se, all_nocorrection_t_stats, all_nocorrection_p_values = [], [], [], []
 
-    var = {"QBRating": 1, "TOP": -2}
-    var = var["TOP"]
+    var = {"QBRating": 1, "TOP": -2, "RushTD": -3}
+    var = var["RushTD"]
 
-    for i in range(1000):
-        if i%100 == 0:
-            print("Working on Iteration: ", i)
+    for i in range(500):
+        print(f"Working on Iteration {i}", end="\r")
 
         test_set, valid_set = split_data(X_test, y_test)
         y_pred_nn = prediction_model.predict(test_set.iloc[:,:-1].values)
@@ -157,28 +159,50 @@ def postprediction_inference(X_test, y_test, prediction_model, y_test_baseline, 
         all_true_outcomes.append(true_inf_model.params[1])
         all_true_se.append(true_inf_model.bse[1])
         all_true_t_stats.append(true_inf_model.tvalues[1])
+        all_true_p_values.append(true_inf_model.pvalues[1])
                 
                 # ------------------- no correction method - OLS
         nocorr_inf_model = sm.OLS(y_valid_pred, sm.add_constant(valid_set.iloc[:,:-1].values)).fit()
 
-        all_nocorrection_estimates.append(nocorr_inf_model.params[1])
-        all_nocorrection_se.append(nocorr_inf_model.bse[1])
-        all_nocorrection_t_stats.append(nocorr_inf_model.tvalues[1])
+        all_nocorrection_estimates.append(nocorr_inf_model.params[var])
+        all_nocorrection_se.append(nocorr_inf_model.bse[var])
+        all_nocorrection_t_stats.append(nocorr_inf_model.tvalues[var])
+        all_nocorrection_p_values.append(nocorr_inf_model.pvalues[var])
                 
                 # ------------------- parametric method
-        parametric_bs_estimate, parametric_bs_se = bootstrap_(valid_set.iloc[:,var], y_valid_pred, valid_set.iloc[:,-1].values, relationship_model)
+        parametric_bs_estimate, parametric_bs_se, parametric_bs_pval = bootstrap_(valid_set.iloc[:,var], y_valid_pred, valid_set.iloc[:,-1].values, relationship_model)
         parametric_t_stat = parametric_bs_estimate / parametric_bs_se
                 
         all_parametric_estimates.append(parametric_bs_estimate)
         all_parametric_se.append(parametric_bs_se)
         all_parametric_t_stats.append(parametric_t_stat)
+        all_parametric_p_values.append(parametric_bs_pval)
                 
                 # ------------------- non-parametric method
-        nonparametric_bs_estimate, nonparametric_bs_se = bootstrap_(valid_set.iloc[:,var], y_valid_pred, valid_set.iloc[:,-1].values, relationship_model, False)
+        nonparametric_bs_estimate, nonparametric_bs_se, nonparametric_bs_pval = bootstrap_(valid_set.iloc[:,var], y_valid_pred, valid_set.iloc[:,-1].values, relationship_model, False)
         nonparametric_t_stat = nonparametric_bs_estimate / nonparametric_bs_se
                 
         all_nonparametric_estimates.append(nonparametric_bs_estimate)
         all_nonparametric_se.append(nonparametric_bs_se)
         all_nonparametric_t_stats.append(nonparametric_t_stat)
+        all_nonparametric_p_values.append(nonparametric_bs_pval)
 
     figure4_plot(all_true_outcomes, all_true_se, all_true_t_stats, all_nocorrection_estimates, all_parametric_estimates, all_nonparametric_estimates, all_nocorrection_se, all_parametric_se, all_nonparametric_se, all_nocorrection_t_stats, all_parametric_t_stats, all_nonparametric_t_stats)
+    pval_plot(all_true_p_values, all_nocorrection_p_values, all_nonparametric_p_values, all_parametric_p_values)
+
+
+
+def pval_plot(all_true_p_values, all_nocorrection_p_values, all_nonparametric_p_values, all_parametric_p_values):
+    fig, ax = plt.subplots(1, 1)
+    fig.suptitle("p-value plots")
+    fig.set_size_inches(20,10)
+
+    ax.scatter(all_true_p_values, all_nocorrection_p_values, color='orange', alpha=0.35)
+    ax.scatter(all_true_p_values, all_parametric_p_values, color='blue', alpha=0.6)
+    ax.scatter(all_true_p_values, all_nonparametric_p_values, color='skyblue', alpha=0.25)
+    # ax.plot([0,1], [0,1], color="black")
+    ax.set_title("p-values")
+    ax.set(xlabel="p-value with true outcome", ylabel="p-value with predicted outcome")
+
+    plt.savefig("./src/plots/p-value_plot.png")
+    plt.clf()
