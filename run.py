@@ -43,9 +43,12 @@ def main(targets):
     test = pd.read_csv("./src/test/test.csv")
     train = pd.read_csv("./src/final_data/train.csv")
 
-    # Modeling
-    X_train, X_test, y_train, y_test, cn = get_data_ready_for_nn(train, test)
-    prediction_mdl = train_nn(X_train, X_test, y_train, y_test, cn)
+    nn = False
+    if nn:
+        X_train, X_test, y_train, y_test, cn = get_data_ready_for_nn(train, test)
+        mdl = train_nn(X_train, X_test, y_train, y_test, cn)
+    else:
+        mdl = build_model(train, test)
 
     y_test_baseline, y_pred_baseline = build_model(train, test)
 

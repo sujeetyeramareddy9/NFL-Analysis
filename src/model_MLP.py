@@ -88,6 +88,7 @@ def train_nn(X_train, X_test, y_train, y_test, cn):
 
     print("Training Set MSE: ", model.loss_)
     
+    
     #param_grid = {"hidden_layer_sizes": [(5,10), (7, 5)], "alpha": [1e-3, 1e-4]}
 
     #clf = GridSearchCV(model, param_grid, scoring="neg_mean_squared_error", cv=5)
