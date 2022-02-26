@@ -122,6 +122,7 @@ def split_data(X_test, y_test):
     valid = test.sample(frac=0.5)
     test = test.drop(valid.index)
 
+
     return test, valid
 
 
@@ -130,6 +131,9 @@ def postprediction_inference(X_test, y_test, prediction_model, y_test_baseline, 
     all_parametric_estimates, all_parametric_se, all_parametric_t_stats = [], [], []
     all_nonparametric_estimates, all_nonparametric_se, all_nonparametric_t_stats = [], [], []
     all_nocorrection_estimates, all_nocorrection_se, all_nocorrection_t_stats = [], [], []
+
+    var = {"QBRating": 1, "TOP": -2}
+    var = var["TOP"]
 
     for i in range(1000):
         if i%100 == 0:
@@ -148,7 +152,7 @@ def postprediction_inference(X_test, y_test, prediction_model, y_test_baseline, 
         y_valid_corr = relationship_model.predict(sm.add_constant(y_valid_pred.reshape(-1,1)))
             
                 # ------------------- true outcomes - OLS
-        true_inf_model = sm.OLS(y_valid_corr, sm.add_constant(valid_set.iloc[:,1].values)).fit()
+        true_inf_model = sm.OLS(y_valid_corr, sm.add_constant(valid_set.iloc[:,var].values)).fit()
                 
         all_true_outcomes.append(true_inf_model.params[1])
         all_true_se.append(true_inf_model.bse[1])
@@ -162,7 +166,7 @@ def postprediction_inference(X_test, y_test, prediction_model, y_test_baseline, 
         all_nocorrection_t_stats.append(nocorr_inf_model.tvalues[1])
                 
                 # ------------------- parametric method
-        parametric_bs_estimate, parametric_bs_se = bootstrap_(valid_set.iloc[:,1], y_valid_pred, valid_set.iloc[:,-1].values, relationship_model)
+        parametric_bs_estimate, parametric_bs_se = bootstrap_(valid_set.iloc[:,var], y_valid_pred, valid_set.iloc[:,-1].values, relationship_model)
         parametric_t_stat = parametric_bs_estimate / parametric_bs_se
                 
         all_parametric_estimates.append(parametric_bs_estimate)
@@ -170,7 +174,7 @@ def postprediction_inference(X_test, y_test, prediction_model, y_test_baseline, 
         all_parametric_t_stats.append(parametric_t_stat)
                 
                 # ------------------- non-parametric method
-        nonparametric_bs_estimate, nonparametric_bs_se = bootstrap_(valid_set.iloc[:,1], y_valid_pred, valid_set.iloc[:,-1].values, relationship_model, False)
+        nonparametric_bs_estimate, nonparametric_bs_se = bootstrap_(valid_set.iloc[:,var], y_valid_pred, valid_set.iloc[:,-1].values, relationship_model, False)
         nonparametric_t_stat = nonparametric_bs_estimate / nonparametric_bs_se
                 
         all_nonparametric_estimates.append(nonparametric_bs_estimate)
