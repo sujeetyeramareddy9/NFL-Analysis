@@ -75,7 +75,7 @@ def figure4_plot(all_true_outcomes, all_true_se, all_true_t_stats, all_nocorrect
     axes4[2].set(xlabel="statistic with true outcome", ylabel="statistic with predicted outcome")
 
     fig4.tight_layout(pad=2.5)
-    fig4.legend(['no correction', 'parametric bootstrap', 'non-parametric bootstrap', 'best_fit'], ncol=4, loc=8)
+    fig4.legend(['no correction', 'parametric bootstrap', 'non-parametric bootstrap', 'accurate_line'], ncol=4, loc=8)
 
     plt.savefig("./src/plots/postpi_Fig4.png")
     plt.clf()
@@ -115,7 +115,7 @@ def bootstrap_(x_val, y_val_pred, y_val_actual, relationship_model, param=True, 
     else:
         se_hat_boot = np.std(beta_estimators)
     
-    return beta_hat_boot, se_hat_boot, np.mean(pval_beta_estimators)
+    return beta_hat_boot, se_hat_boot, np.median(pval_beta_estimators)
 
 
 def split_data(X_test, y_test):
@@ -135,8 +135,8 @@ def postprediction_inference(X_test, y_test, prediction_model, y_test_baseline, 
     all_nonparametric_estimates, all_nonparametric_se, all_nonparametric_t_stats, all_nonparametric_p_values = [], [], [], []
     all_nocorrection_estimates, all_nocorrection_se, all_nocorrection_t_stats, all_nocorrection_p_values = [], [], [], []
 
-    var = {"QBRating": 1, "TOP": -2, "RushTD": -3}
-    var = var["RushTD"]
+    var = {"QBRating": 1, "TOP": -2, "RushTD": -3, "SkYds": 6, "Sk": 7}
+    var = var["TOP"]
 
     for i in range(500):
         print(f"Working on Iteration {i}", end="\r")
@@ -153,7 +153,7 @@ def postprediction_inference(X_test, y_test, prediction_model, y_test_baseline, 
         y_valid_pred = prediction_model.predict(valid_set.iloc[:,:-1].values)
         y_valid_corr = relationship_model.predict(sm.add_constant(y_valid_pred.reshape(-1,1)))
             
-                # ------------------- true outcomes - OLS
+        # ------------------- true outcomes - OLS
         true_inf_model = sm.OLS(y_valid_corr, sm.add_constant(valid_set.iloc[:,var].values)).fit()
                 
         all_true_outcomes.append(true_inf_model.params[1])
@@ -161,15 +161,15 @@ def postprediction_inference(X_test, y_test, prediction_model, y_test_baseline, 
         all_true_t_stats.append(true_inf_model.tvalues[1])
         all_true_p_values.append(true_inf_model.pvalues[1])
                 
-                # ------------------- no correction method - OLS
-        nocorr_inf_model = sm.OLS(y_valid_pred, sm.add_constant(valid_set.iloc[:,:-1].values)).fit()
+        # ------------------- no correction method - OLS
+        nocorr_inf_model = sm.OLS(y_valid_pred, sm.add_constant(valid_set.iloc[:,var].values)).fit()
 
-        all_nocorrection_estimates.append(nocorr_inf_model.params[var])
-        all_nocorrection_se.append(nocorr_inf_model.bse[var])
-        all_nocorrection_t_stats.append(nocorr_inf_model.tvalues[var])
-        all_nocorrection_p_values.append(nocorr_inf_model.pvalues[var])
+        all_nocorrection_estimates.append(nocorr_inf_model.params[1])
+        all_nocorrection_se.append(nocorr_inf_model.bse[1])
+        all_nocorrection_t_stats.append(nocorr_inf_model.tvalues[1])
+        all_nocorrection_p_values.append(nocorr_inf_model.pvalues[1])
                 
-                # ------------------- parametric method
+        # ------------------- parametric method
         parametric_bs_estimate, parametric_bs_se, parametric_bs_pval = bootstrap_(valid_set.iloc[:,var], y_valid_pred, valid_set.iloc[:,-1].values, relationship_model)
         parametric_t_stat = parametric_bs_estimate / parametric_bs_se
                 
@@ -178,7 +178,7 @@ def postprediction_inference(X_test, y_test, prediction_model, y_test_baseline, 
         all_parametric_t_stats.append(parametric_t_stat)
         all_parametric_p_values.append(parametric_bs_pval)
                 
-                # ------------------- non-parametric method
+        # ------------------- non-parametric method
         nonparametric_bs_estimate, nonparametric_bs_se, nonparametric_bs_pval = bootstrap_(valid_set.iloc[:,var], y_valid_pred, valid_set.iloc[:,-1].values, relationship_model, False)
         nonparametric_t_stat = nonparametric_bs_estimate / nonparametric_bs_se
                 
@@ -200,7 +200,7 @@ def pval_plot(all_true_p_values, all_nocorrection_p_values, all_nonparametric_p_
     ax.scatter(all_true_p_values, all_nocorrection_p_values, color='orange', alpha=0.35)
     ax.scatter(all_true_p_values, all_parametric_p_values, color='blue', alpha=0.6)
     ax.scatter(all_true_p_values, all_nonparametric_p_values, color='skyblue', alpha=0.25)
-    # ax.plot([0,1], [0,1], color="black")
+    ax.plot([min(all_true_p_values),max(all_true_p_values)], [min(all_true_p_values),max(all_true_p_values)], color="black")
     ax.set_title("p-values")
     ax.set(xlabel="p-value with true outcome", ylabel="p-value with predicted outcome")
 
