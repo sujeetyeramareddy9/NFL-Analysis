@@ -282,64 +282,85 @@ def postprediction_inference(X_test, y_test, prediction_model, y_test_baseline, 
         None
             prints multiple seaborn scatterplot & outputs to plots/ folder
     """
-    # variables to hold all information for our plots
+    # variables to hold all information for the true estimates/standard errors/t-statistics/p-values
     all_true_outcomes, all_true_se, all_true_t_stats, all_true_p_values = [], [], [], []
+    # variables to hold all information for the parametric bootstrap estimates/standard errors/t-statistics/p-values
     all_parametric_estimates, all_parametric_se, all_parametric_t_stats, all_parametric_p_values = [], [], [], []
+    # variables to hold all information for the non-parametric bootstrap estimates/standard errors/t-statistics/p-values
     all_nonparametric_estimates, all_nonparametric_se, all_nonparametric_t_stats, all_nonparametric_p_values = [], [], [], []
+    # variables to hold all information for the no correction estimates/standard errors/t-statistics/p-values
     all_nocorrection_estimates, all_nocorrection_se, all_nocorrection_t_stats, all_nocorrection_p_values = [], [], [], []
 
+    # dictionary to hold our features to try out different features in post-prediction inference
     covs = {"QBRating": 1, "TOP": -2, "RushTD": -3, "SkYds": 6, "Sk": 7}
+    # variable that can be changed to analyze different covariates
     cov_of_int = "TOP"
 
+    # run the simulation 1000 times
     for i in range(1000):
         print(f"Working on Iteration {i}", end="\r")
 
+        # split the test data into 50/50 new validation and test set randomly each iteration
         test_set, valid_set = split_data(X_test, y_test)
+        # obtain predictions using all covariates
         y_pred_nn = prediction_model.predict(test_set.iloc[:,:-1].values)
 
+        # only plot these figures on the first iteration
         if i == 0:
             figure2_plot(test_set.iloc[:,covs[cov_of_int]], test_set.iloc[:,-1], y_pred_nn, cov_of_int)
             figure3_plot(y_pred_nn, y_pred_baseline, test_set.iloc[:,-1].values, y_test_baseline)
 
+        # create a relationship model that relates predicted y values and observed y values from the test set
         relationship_model = LinearRegression(fit_intercept=False).fit(sm.add_constant(y_pred_nn.reshape(-1,1)), test_set.iloc[:,-1].values)
 
+        # use the prediction model to predict y values for the validation set
         y_valid_pred = prediction_model.predict(valid_set.iloc[:,:-1].values)
+        # use the relationship model to correct predicted validation values and obtain "observed" validation values 
         y_valid_corr = relationship_model.predict(sm.add_constant(y_valid_pred.reshape(-1,1)))
             
         # ------------------- true outcomes - OLS
+        # true inference model is a linear regression model using the covariate of interest to predict the corrected validation y values 
         true_inf_model = sm.OLS(y_valid_corr, sm.add_constant(valid_set.iloc[:,covs[cov_of_int]].values)).fit()
-                
+
+        # adding the values from the model to our variables        
         all_true_outcomes.append(true_inf_model.params[1])
         all_true_se.append(true_inf_model.bse[1])
         all_true_t_stats.append(true_inf_model.tvalues[1])
         all_true_p_values.append(true_inf_model.pvalues[1])
                 
         # ------------------- no correction method - OLS
+        # no correction model is a linear regression using the covariate of interest to predict the predicted validation y values 
         nocorr_inf_model = sm.OLS(y_valid_pred, sm.add_constant(valid_set.iloc[:,covs[cov_of_int]].values)).fit()
 
+        # adding the values from the model to our variables
         all_nocorrection_estimates.append(nocorr_inf_model.params[1])
         all_nocorrection_se.append(nocorr_inf_model.bse[1])
         all_nocorrection_t_stats.append(nocorr_inf_model.tvalues[1])
         all_nocorrection_p_values.append(nocorr_inf_model.pvalues[1])
                 
         # ------------------- parametric method
+        # use bootstrap with parametric method to obtain values
         parametric_bs_estimate, parametric_bs_se, parametric_bs_pval = bootstrap_(valid_set.iloc[:,covs[cov_of_int]], y_valid_pred, relationship_model)
         parametric_t_stat = parametric_bs_estimate / parametric_bs_se
                 
+        # adding the values from the model to our variables
         all_parametric_estimates.append(parametric_bs_estimate)
         all_parametric_se.append(parametric_bs_se)
         all_parametric_t_stats.append(parametric_t_stat)
         all_parametric_p_values.append(parametric_bs_pval)
                 
         # ------------------- non-parametric method
+        # use bootstrap with non-parametric method to obtain values
         nonparametric_bs_estimate, nonparametric_bs_se, nonparametric_bs_pval = bootstrap_(valid_set.iloc[:,covs[cov_of_int]], y_valid_pred, relationship_model, False)
         nonparametric_t_stat = nonparametric_bs_estimate / nonparametric_bs_se
-                
+        
+        # adding the values from the model to our variables
         all_nonparametric_estimates.append(nonparametric_bs_estimate)
         all_nonparametric_se.append(nonparametric_bs_se)
         all_nonparametric_t_stats.append(nonparametric_t_stat)
         all_nonparametric_p_values.append(nonparametric_bs_pval)
 
+    # use the values calculated from the loop to make our plots
     figure4_plot(all_true_outcomes, all_true_se, all_true_t_stats, all_nocorrection_estimates, all_parametric_estimates, all_nonparametric_estimates, all_nocorrection_se, all_parametric_se, all_nonparametric_se, all_nocorrection_t_stats, all_parametric_t_stats, all_nonparametric_t_stats)
     pval_plot(all_true_p_values, all_nocorrection_p_values, all_nonparametric_p_values, all_parametric_p_values)
 
@@ -365,10 +386,12 @@ def pval_plot(all_true_p_values, all_nocorrection_p_values, all_nonparametric_p_
         None
             prints seaborn scatterplot & outputs to plots/ folder
     """
+    # creating the plot layout
     fig, ax = plt.subplots(1, 1)
     fig.suptitle("p-value plots")
     fig.set_size_inches(20,10)
 
+    # plot p-values from each other different approaches for easy comparison
     ax.scatter(all_true_p_values, all_nocorrection_p_values, color='orange', alpha=0.35)
     ax.scatter(all_true_p_values, all_parametric_p_values, color='blue', alpha=0.6)
     ax.scatter(all_true_p_values, all_nonparametric_p_values, color='skyblue', alpha=0.25)
@@ -376,5 +399,6 @@ def pval_plot(all_true_p_values, all_nocorrection_p_values, all_nonparametric_p_
     ax.set_title("p-values")
     ax.set(xlabel="p-value with true outcome", ylabel="p-value with predicted outcome")
 
+    # export to plots/ folder
     plt.savefig("./src/plots/p-value_plot.png")
     plt.clf()
