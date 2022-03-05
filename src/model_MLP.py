@@ -10,6 +10,7 @@ from sklearn.inspection import permutation_importance
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.feature_selection import SelectKBest, f_regression
+from sklearn.model_selection import train_test_split
 
 
 
@@ -74,19 +75,19 @@ def importance(clf, X, y, cn):
     return fig
 
 
-def train_nn(X_train, X_test, y_train, y_test, cn):
+def train_nn(X_train, X_test, Y_train, y_test, cn):
+
+    x_train, y_test, y_train,y_valid = train_test_split(X_train, Y_train, test_size=0.2)
+
+
     model = MLPRegressor(activation="logistic", solver="adam", early_stopping=False, 
     learning_rate="adaptive", max_iter=300,alpha=0.01,hidden_layer_sizes = (32,64,64,128))
     inverse = False
-    if inverse :        
-        inverse_y = 1/y_train
-        inverse_y[inverse_y==np.inf] = 0
-        model.fit(X_train, inverse_y)
-    else:
-        model.fit(X_train, y_train)
-
+ 
+    model.fit(x_train, y_train)
 
     print("Training Set MSE: ", model.loss_)
+    
     
     # param_grid = {"hidden_layer_sizes": [(5,10), (7, 5)], "alpha": [1e-3, 1e-4]}
 
