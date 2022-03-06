@@ -292,9 +292,10 @@ def postprediction_inference(X_test, y_test, prediction_model, y_test_baseline, 
     all_nocorrection_estimates, all_nocorrection_se, all_nocorrection_t_stats, all_nocorrection_p_values = [], [], [], []
 
     # dictionary to hold our features to try out different features in post-prediction inference
-    covs = {"QBRating": 1, "TOP": -2, "RushTD": -3, "SkYds": 6, "Sk": 7}
+    covs = {"QBRating": 1, "TOP": -2, "RushTD": -3, 
+    "SkYds": 6, "Sk": 7, "Int": 8, "1stD": 2, "Temperature": -1, "PassTD": 9}
     # variable that can be changed to analyze different covariates
-    cov_of_int = "TOP"
+    cov_of_int = "PassTD"
 
     # run the simulation 1000 times
     for i in range(1000):
@@ -361,8 +362,35 @@ def postprediction_inference(X_test, y_test, prediction_model, y_test_baseline, 
         all_nonparametric_p_values.append(nonparametric_bs_pval)
 
     # use the values calculated from the loop to make our plots
-    figure4_plot(all_true_outcomes, all_true_se, all_true_t_stats, all_nocorrection_estimates, all_parametric_estimates, all_nonparametric_estimates, all_nocorrection_se, all_parametric_se, all_nonparametric_se, all_nocorrection_t_stats, all_parametric_t_stats, all_nonparametric_t_stats)
-    pval_plot(all_true_p_values, all_nocorrection_p_values, all_nonparametric_p_values, all_parametric_p_values)
+    # figure4_plot(all_true_outcomes, all_true_se, all_true_t_stats, all_nocorrection_estimates, all_parametric_estimates, all_nonparametric_estimates, all_nocorrection_se, all_parametric_se, all_nonparametric_se, all_nocorrection_t_stats, all_parametric_t_stats, all_nonparametric_t_stats)
+    # pval_plot(all_true_p_values, all_nocorrection_p_values, all_nonparametric_p_values, all_parametric_p_values)
+
+    hextri_estimates_df = pd.DataFrame({
+        "y": all_nocorrection_estimates + all_parametric_estimates + all_nonparametric_estimates, 
+        "x": all_true_outcomes + all_true_outcomes + all_true_outcomes,
+        "class": ["no_correction"]*1000 + ["parametric"]*1000 + ["non-parametric"]*1000})
+
+    hextri_se_df = pd.DataFrame({
+        "y": all_nocorrection_se + all_parametric_se + all_nonparametric_se, 
+        "x": all_true_se + all_true_se + all_true_se,
+        "class": ["no_correction"]*1000 + ["parametric"]*1000 + ["non-parametric"]*1000})
+
+    hextri_tstat_df = pd.DataFrame({
+        "y": all_nocorrection_t_stats + all_parametric_t_stats + all_nonparametric_t_stats, 
+        "x": all_true_t_stats + all_true_t_stats + all_true_t_stats,
+        "class": ["no_correction"]*1000 + ["parametric"]*1000 + ["non-parametric"]*1000})
+
+    hextri_pval_df = pd.DataFrame({
+        "y": all_nocorrection_p_values + all_parametric_p_values + all_nonparametric_p_values, 
+        "x": all_true_p_values + all_true_p_values + all_true_p_values,
+        "class": ["no_correction"]*1000 + ["parametric"]*1000 + ["non-parametric"]*1000})
+
+
+    hextri_estimates_df.to_csv("./src/hextri_data/estimates.csv", index=False)
+    hextri_se_df.to_csv("./src/hextri_data/ses.csv", index=False)
+    hextri_tstat_df.to_csv("./src/hextri_data/tstats.csv", index=False)
+    hextri_pval_df.to_csv("./src/hextri_data/pvals.csv", index=False)
+
 
 
 
