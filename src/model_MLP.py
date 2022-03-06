@@ -76,13 +76,10 @@ def importance(clf, X, y, cn):
 
 
 def train_nn(X_train, X_test, Y_train, y_test, cn):
-
-    x_train, y_test, y_train,y_valid = train_test_split(X_train, Y_train, test_size=0.2)
-
+    x_train, x_valid, y_train, y_valid = train_test_split(X_train, Y_train, test_size=0.2)
 
     model = MLPRegressor(activation="logistic", solver="adam", early_stopping=False, 
     learning_rate="adaptive", max_iter=300,alpha=0.01,hidden_layer_sizes = (32,64,64,128))
-    inverse = False
  
     model.fit(x_train, y_train)
 
@@ -95,12 +92,10 @@ def train_nn(X_train, X_test, Y_train, y_test, cn):
     # clf.fit(X_train, np.array(y_train))
     # print(clf.best_params_)
     
-
-
     print("Test Set MAE: ", np.mean(np.abs((model.predict(X_test)) - np.array(y_test))))
 
     fig = importance(
-        model, X_train, np.array(y_train), cn
+        model, x_train, np.array(y_train), cn
     )
     plt.savefig("./src/plots/Permutation_Importances.png")
 
