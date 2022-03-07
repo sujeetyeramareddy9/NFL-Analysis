@@ -2,6 +2,7 @@
 
 #### <p align="center"> By: Sujeet Yeramareddy, Jonathan Langley , Yong Liu </p>
 
+<hr />
 
 After researching about a new inference correction approach called post-prediction inference, we chose to 
 apply it to sports analysis based on NFL games. We designed a model that can predict the Spread
