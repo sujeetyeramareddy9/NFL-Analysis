@@ -10,10 +10,13 @@ their impact on our response variable, Spread.
 
 
 Data collected from: https://stathead.com/football/
+
 Website: https://jonlangley2022.github.io/
 
 
+
 DIRECTORY STRUCTURE
+
 ├── src
 │   ├── data
 │       ├── final_data.csv
