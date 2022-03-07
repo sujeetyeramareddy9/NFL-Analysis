@@ -1,5 +1,6 @@
-# NFL analysis 
-## By: Sujeet Yeramareddy, Jonathan Langley , Yong Liu
+# NFL-Analysis 
+
+### By: Sujeet Yeramareddy, Jonathan Langley , Yong Liu
 
 
 After researching about a new inference correction approach called post-prediction inference, we chose to 
