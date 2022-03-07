@@ -15,6 +15,7 @@ Website: https://jonlangley2022.github.io/
 
 
 
+```text
 DIRECTORY STRUCTURE
 
 ├── src
@@ -59,5 +60,4 @@ DIRECTORY STRUCTURE
 ├── Dockerfile
 ├── README.md
 └── run.py
-
-
+```
