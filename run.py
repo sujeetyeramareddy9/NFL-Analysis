@@ -48,9 +48,9 @@ def main(targets):
     
     y_test_baseline, y_pred_baseline = build_model(train, test)
 
-    # superbowl_pred = pd.read_csv("./src/final_data/superbowls.csv").to_numpy()
-    # superbowl_pred = prediction_mdl.predict(superbowl_pred)
-    # print(superbowl_pred)
+    superbowl_pred = pd.read_csv("./src/final_data/superbowls.csv").to_numpy()
+    superbowl_pred = prediction_mdl.predict(superbowl_pred)
+    print(superbowl_pred)
 
     # Post-prediction inference
     postprediction_inference(X_test, y_test, prediction_mdl, y_test_baseline, y_pred_baseline)
