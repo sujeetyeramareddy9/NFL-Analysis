@@ -1,8 +1,4 @@
-from datetime import datetime
 import pandas as pd
-import numpy as np
-
-
 
 dtypes = {"Date": str}
 parse_dates = list(dtypes.keys())
@@ -34,17 +30,15 @@ def preprocess_game_columns(df):
 
 def get_individual_data_files(input_dir, get_final):
     """
-    
+    Uses input_dir and final instructions to get the individual data files
 
     Parameters
     ----------
     input_dir: directory
     
     get_final: boolean
-    if set to false (default), this function runs as normally, if true this isn't called and the final_data is exported as is
-      
+        if set to false (default), this function runs as normally, if true this isn't called and the final_data is exported as is
     
-
     Returns
     -------
     Final data (dataframe)

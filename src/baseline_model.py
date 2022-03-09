@@ -1,8 +1,6 @@
 import numpy as np
-
 import statsmodels.api as sm
 from sklearn.preprocessing import StandardScaler
-
 import matplotlib.pyplot as plt
 
 # list of features to use in baseline model
@@ -108,6 +106,7 @@ def build_model(train, test):
     sm.qqplot(res).set_size_inches(6,6)
     plt.title("Linear Regression Q-Q Plot")
     plt.savefig("./src/plots/qqplot.png")
+    plt.clf()
     # shows that the model is approximately normal and significant
 
     # return model to allow for predictions
