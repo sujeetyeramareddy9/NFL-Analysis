@@ -50,7 +50,7 @@ def main(targets):
     else:
         mdl = build_model(train, test)
 
-    y_test_baseline, y_pred_baseline = build_model(train, test)
+    #y_test_baseline, y_pred_baseline = build_model(train, test)
 
     superbowl_pred = pd.read_csv("./src/final_data/superbowls.csv").to_numpy()
     superbowl_pred = mdl.predict(superbowl_pred)

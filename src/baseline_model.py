@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 
 # list of features to use in baseline model
-features = ["Home", "Tm_QBRating", "Opp_QBRating", "Tm_RshY/A", "Opp_RshY/A"]
+features = ["Home", "Tm_QBRating", "Opp_QBRating", "Tm_RshTD", "Tm_Temperature","Tm_Pass1stD"]
 
 def split_data(df):
     """
@@ -98,16 +98,16 @@ def build_model(train, test):
     mod_fit = model.fit()
 
     # calculate residuals and parameters for analysis
-    # res = mod_fit.resid
+    res = mod_fit.resid
     # print(mod_fit.params)
-    # print(mod_fit.summary())
+    print(mod_fit.summary())
 
     # calculate MAE of model predictions
     # print("MAE: ", mae(mod_fit.predict(X_test), list(y_test)))
 
     # qqplot to analyze if our model as a whole follows linear regression assumptions
-    # sm.qqplot(res).set_size_inches(4,4)
-    # plt.savefig("./src/plots/qqplot.png")
+    sm.qqplot(res).set_size_inches(5,5)
+    plt.savefig("./src/plots/qqplot.png")
     # shows that the model is approximately normal and significant
 
     # return model to allow for predictions

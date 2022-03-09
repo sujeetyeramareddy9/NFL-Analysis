@@ -80,7 +80,7 @@ def train_nn(X_train, X_test, Y_train, y_test, cn):
 
 
     model = MLPRegressor(activation="logistic", solver="adam", early_stopping=True, validation_fraction = 0.2,
-    learning_rate="adaptive", max_iter=200,alpha=0.001,hidden_layer_sizes = (32,64,64,128),random_state = 9999)
+    learning_rate="adaptive", max_iter=300,alpha=0.001,hidden_layer_sizes = (32,64,64,128))
  
     model.fit(X_train, Y_train)
 
