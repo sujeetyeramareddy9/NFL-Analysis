@@ -24,7 +24,6 @@ def get_data_ready_for_nn(train ,test):
        'Opp_SkYds', 'Opp_QBRating', 'Opp_RshY/A', 'Opp_RshTD', 'Tm_Temperature', 'Tm_RshY/A', 'Tm_RshTD', 'Tm_PassCmp%', 'Tm_PassYds', 'Tm_PassTD', 'Tm_INT', 'Tm_Sk', 'Tm_SkYds', 'Tm_QBRating', 'Tm_TOP']
     X_train = train.copy()[training_cols]
     X_test = test.copy()[training_cols]
-    X_validation = X_train
 
     y_train = train.copy()["Spread"]
     y_test = test.copy()["Spread"]
@@ -32,12 +31,11 @@ def get_data_ready_for_nn(train ,test):
 
     X_train = feature_select(X_train)
     X_test = feature_select(X_test)
-    cn=X_train.columns
-    X_train,X_test = standardize_x(X_train.to_numpy(),X_test.to_numpy())
-
-
+    cn = X_train.columns
+    X_train, X_test = standardize_x(X_train.to_numpy(),X_test.to_numpy())
 
     return X_train, X_test, np.array(y_train), np.array(y_test),cn
+
 
 def feature_select(covariates):
     x = pd.DataFrame()
@@ -76,27 +74,24 @@ def importance(clf, X, y, cn):
 
 
 def train_nn(X_train, X_test, Y_train, y_test, cn):
-
-
-
     model = MLPRegressor(activation="logistic", solver="adam", early_stopping=True, validation_fraction = 0.2,
-    learning_rate="adaptive", max_iter=200,alpha=0.001,hidden_layer_sizes = (32,64,64,128),random_state = 9999)
+    learning_rate="adaptive", max_iter=200,alpha=0.001,hidden_layer_sizes = (32,64,64,128),random_state = 453)
  
     model.fit(X_train, Y_train)
 
-    print("Training Set MSE: ", model.loss_)
+    print("MLP Regressor NN Training Set MSE: ", model.loss_)
     
     plt.plot(model.loss_curve_)
     plt.xlabel("epoch")
     plt.ylabel("current loss")
     plt.savefig("./src/plots/training_losscurve.png")
-    # param_grid = {"hidden_layer_sizes": [(5,10), (7, 5)], "alpha": [1e-3, 1e-4]}
 
+    # param_grid = {"hidden_layer_sizes": [(5,10), (7, 5)], "alpha": [1e-3, 1e-4]}
     # clf = GridSearchCV(model, param_grid, scoring="neg_mean_squared_error", cv=5)
     # clf.fit(X_train, np.array(y_train))
     # print(clf.best_params_)
     
-    print("Test Set MAE: ", np.mean(np.abs((model.predict(X_test)) - np.array(y_test))))
+    print("MLP Regressor NN Test Set MAE: ", np.mean(np.abs((model.predict(X_test)) - np.array(y_test))))
 
     fig = importance(
         model, X_train, np.array(Y_train), cn
