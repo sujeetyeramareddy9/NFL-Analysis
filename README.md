@@ -11,7 +11,9 @@ important features so that we can accurately correct inference for these variabl
 their impact on our response variable, Spread.
 
 ## Usage Instructions
-To use this code, please execute the following command in a terminal from the working directory of the project: `python run.py test`
+To use this code, please execute the following command in a terminal from the working directory of the project: `python run.py`
+
+To use specific test target, please execute the following command: `python run.py test`
 
 ## Project Structure
 
