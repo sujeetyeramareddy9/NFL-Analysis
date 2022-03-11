@@ -37,8 +37,8 @@ def main(targets):
 
     if "test" in targets:
         # test data
-        train = pd.read_csv("./src/final_data/train.csv")[:50]
-        test = pd.read_csv("./src/test/test.csv")[50:80]
+        train = pd.read_csv("./src/final_data/train.csv")[:10]
+        test = pd.read_csv("./src/test/test.csv")[10:15]
         post_pi = False
     else:
         # train data
