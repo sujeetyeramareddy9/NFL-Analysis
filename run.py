@@ -33,14 +33,18 @@ def main(targets):
     else:
         df = pd.read_csv("./src/data/final_data.csv")
 
+    post_pi = True
+
     if "test" in targets:
         # test data
         train = pd.read_csv("./src/final_data/train.csv")[:50]
         test = pd.read_csv("./src/test/test.csv")[50:80]
+        post_pi = False
     else:
         # train data
         train = pd.read_csv("./src/final_data/train.csv")
         test = pd.read_csv("./src/final_data/test.csv")
+        
     
     y_test_baseline, y_pred_baseline = build_model(train, test)
 
@@ -51,8 +55,10 @@ def main(targets):
     superbowl_pred = prediction_mdl.predict(superbowl_pred)
     print(f"Superbowl Prediction: Rams will win by {np.round(superbowl_pred[0], 0)} points.")
 
-    # Post-prediction inference
-    postprediction_inference(X_test, y_test, prediction_mdl, y_test_baseline, y_pred_baseline)
+
+    if post_pi:
+        # Post-prediction inference
+        postprediction_inference(X_test, y_test, prediction_mdl, y_test_baseline, y_pred_baseline)
 
 
 if __name__ == '__main__':
