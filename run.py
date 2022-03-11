@@ -35,8 +35,8 @@ def main(targets):
 
     if "test" in targets:
         # test data
-        train = pd.read_csv("./src/final_data/train.csv")
-        test = pd.read_csv("./src/test/test.csv")
+        train = pd.read_csv("./src/final_data/train.csv")[:50]
+        test = pd.read_csv("./src/test/test.csv")[50:80]
     else:
         # train data
         train = pd.read_csv("./src/final_data/train.csv")
